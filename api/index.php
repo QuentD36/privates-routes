@@ -3,17 +3,24 @@
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: *");
 header("Access-Control-Allow-Methods: *");
-require_once 'loginController.php';
 require_once 'dbManager.php';
 require_once 'functions.php';
+require_once 'authMiddleware.php';
+require_once 'userController.php';
+
 
 $db = new dbManager;
 $conn = $db->connect();
+
 
 $method = $_SERVER['REQUEST_METHOD'];
 $action = explode('/', $_SERVER['REQUEST_URI']);
 $data = json_decode(file_get_contents('php://input'));
 
+// $test = json_encode($action);
+
+// echo $test;
+// die;
 switch($method) {
     case "GET":
         $sql = "SELECT * FROM users";
@@ -36,7 +43,20 @@ switch($method) {
             case 'login':
                 login($conn, $data);
                 break;
-            case 'signup':
+            case 'checkToken':
+                $allHeaders = getallheaders();
+                $auth = new Auth($conn, $allHeaders);
+                $auth = $auth->isValid();
+                echo json_encode($auth);
+                break;
+            case 'user':
+                if($action[4] == 'save'){
+                    save_user($conn, $data);
+                }
+                break;
+            default:
+                echo json_encode(formatMsg(0,422,'Erreur !'));
+                break;
         }
         // $user = json_decode( file_get_contents('php://input') );
         // $sql = "INSERT INTO users(id, name, email, mobile, created_at) VALUES(null, :name, :email, :mobile, :created_at)";

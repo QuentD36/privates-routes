@@ -1,11 +1,12 @@
 <?php
-require '../vendor/autoload.php';
+require_once '../vendor/autoload.php';
 
 use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 
 class JwtHandler
 {
-    protected $jwt_secrect;
+    protected $jwt_secret;
     protected $token;
     protected $issuedAt;
     protected $expire;
@@ -21,7 +22,7 @@ class JwtHandler
         $this->expire = $this->issuedAt + 3600;
 
         // Set your secret or signature
-        $this->jwt_secrect = "this_is_my_secrect";
+        $this->jwt_secret = "this_is_my_secrect";
     }
 
     public function jwtEncodeData($iss, $data)
@@ -39,14 +40,14 @@ class JwtHandler
             "data" => $data
         );
 
-        $this->jwt = JWT::encode($this->token, $this->jwt_secrect, 'HS256');
+        $this->jwt = JWT::encode($this->token, $this->jwt_secret, 'HS256');
         return $this->jwt;
     }
 
     public function jwtDecodeData($jwt_token)
     {
         try {
-            $decode = JWT::decode($jwt_token, $this->jwt_secrect, array('HS256'));
+            $decode = JWT::decode($jwt_token, new Key($this->jwt_secret, 'HS256'));
             return [
                 "data" => $decode->data
             ];

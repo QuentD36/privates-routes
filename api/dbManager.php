@@ -4,9 +4,9 @@
     */
     class dbManager {
         private $server = 'localhost';
-        private $dbname = 'test';
+        private $dbname = 'savage-dreams';
         private $user = 'root';
-        private $pass = '';
+        private $pass = 'root';
         public function connect() {
             try {
                 $conn = new PDO('mysql:host=' .$this->server .';dbname=' . $this->dbname, $this->user, $this->pass);

@@ -19,7 +19,8 @@ import IconButton from '@mui/material/IconButton';
 import Collapse from '@mui/material/Collapse';
 import CloseIcon from '@mui/icons-material/Close';
 import CircularProgress from '@mui/material/CircularProgress';
-
+import { redirect } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 
 function Copyright(props) {
@@ -40,7 +41,7 @@ const theme = createTheme({
 });
 
 export default function SignIn() {
-  
+  const navigate = useNavigate();
   const [isError, setIsError] = useState(false);
   const [error, setError] = useState(false);
   const [open, setOpen] = useState(false);
@@ -62,14 +63,16 @@ export default function SignIn() {
 
     setTimeout(() => {
       setIsLoading(true);
-      axios.post('http://localhost/savage-dreams/api/login', inputs).then(function(response){
+      axios.post('http://localhost:8888/savage-dreams/api/login', inputs).then( (response) => {
         console.log(response.data)
           if(response.data.success == 0){
             setError(response.data.message)
             setIsError(true)
             setOpen(true)
             setIsLoading(false);
-
+          }else{
+            localStorage.setItem('token', response.data.token)
+            navigate("/dashboard");
           }
       })
     }, 1000);
@@ -82,17 +85,11 @@ export default function SignIn() {
 
   if(isError){
     display = "flex"
-  }else{
-    display = "none"
   }
 
   if(isLoading){
     loading = "flex"
     show = "none"
-  }else{
-    loading = "none"
-    show = "flex"
-
   }
 
   return (    

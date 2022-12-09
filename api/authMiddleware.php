@@ -1,5 +1,5 @@
 <?php
-require 'jwtHandler.php';
+require_once 'jwtHandler.php';
 
 class Auth extends JwtHandler
 {
@@ -24,17 +24,22 @@ class Auth extends JwtHandler
             if (
                 isset($data['data']->user_id) &&
                 $user = $this->fetchUser($data['data']->user_id)
-            ) :
+            ){
                 return [
                     "success" => 1,
-                    "user" => $user
+                    "message" => "Token ok",
+                    "user" => $user,
+
                 ];
-            else :
+            }
+                
+            else{
                 return [
                     "success" => 0,
                     "message" => $data['message'],
                 ];
-            endif;
+            }
+                
         } else {
             return [
                 "success" => 0,
@@ -46,7 +51,7 @@ class Auth extends JwtHandler
     protected function fetchUser($user_id)
     {
         try {
-            $fetch_user_by_id = "SELECT `name`,`email` FROM `users` WHERE `id`=:id";
+            $fetch_user_by_id = "SELECT `email` FROM `users` WHERE `id`=:id";
             $query_stmt = $this->db->prepare($fetch_user_by_id);
             $query_stmt->bindValue(':id', $user_id, PDO::PARAM_INT);
             $query_stmt->execute();
