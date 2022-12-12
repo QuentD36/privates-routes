@@ -7,7 +7,7 @@ require_once 'dbManager.php';
 require_once 'functions.php';
 require_once 'authMiddleware.php';
 require_once 'userController.php';
-define('URL', 'http://localhost:8888/savage-dreams');
+define('URL', 'http://localhost/savage-dreams');
 
 
 $db = new dbManager;

@@ -37,7 +37,6 @@ function SimpleDialog(props) {
   const [role, setRole] = useState('')
   const [openError, setOpenError] = useState(false)
   const [password, setPassword] = useState('')
-  const [disabled, setDisabled] = useState(false)
 
   const [showPassword, setShowPassword] = useState(false)
   const handleClickShowPassword = () => setShowPassword(!showPassword)
@@ -79,7 +78,7 @@ function SimpleDialog(props) {
 
   const handleSubmit = (event) => {
     event.preventDefault()
-    // console.log(inputs)
+    console.log(inputs)
     setIsLoading(true);
       setTimeout(() => {
         // setIsLoading(true);
@@ -96,7 +95,6 @@ function SimpleDialog(props) {
               props.setOpen(false)
               setRole('')
               setPassword('')
-              setDisabled(false)
               props.setSuccessMsg(response.data.message)
               props.setOpenSuccess(true)
               setInputs([])
@@ -111,15 +109,12 @@ function SimpleDialog(props) {
   const handleClose = () => {
     onClose(selectedValue)
     setPassword('')
-    setDisabled(false)
   };
 
   const generatePwd = () => {
-    if(!disabled){
       var randPassword = generate({length: 12})
       setPassword(randPassword)
-      setDisabled(true)
-    }
+      setInputs(values => ({...values, ["password"]: randPassword}))
     
   }
 

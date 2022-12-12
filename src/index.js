@@ -3,10 +3,15 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { Helmet } from 'react-helmet';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
+    <Helmet>
+      <title>CRM - Ton Texte</title>
+      <link rel="icon" type="image/x-icon" href="../public/favicon.ico"></link>
+    </Helmet>
     <App />
   </React.StrictMode>
 );
