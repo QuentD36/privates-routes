@@ -70,23 +70,68 @@ function login($conn, $data){
 }
 
 function save_user($conn, $data){
-    $user = json_decode( file_get_contents('php://input') );
-    $sql = "INSERT INTO users(name, firstname, mail, password, role, created_at, modified_at) VALUES(:name, :firstname, :email, :password, :role, :created_at, :modified_at)";
-    $stmt = $conn->prepare($sql);
-    $data = date('Y-m-d H:i:s');
-    $stmt->bindParam(':name', $user->name);
-    $stmt->bindParam(':firstname', $user->firstname);
-    $stmt->bindParam(':email', $user->email);
-    $stmt->bindParam(':password', $user->name);
-    $stmt->bindParam(':role', $user->role);
-    $stmt->bindParam(':created_at', $date);
-    $stmt->bindParam(':modified_at', $date);
-    
-    if($stmt->execute()) {
-        $response = ['status' => 1, 'message' => 'Success'];
-    } else {
-        $response = formatMsg(0,422, 'Error');
+    if(empty($data) || !isset($data->name) || !isset($data->firstname) || !isset($data->email) || !isset($data->password) || !isset($data->role)
+       || empty(trim($data->name)) || empty(trim($data->firstname)) || empty(trim($data->email)) || empty(trim($data->password)) || empty(trim($data->role))
+    ){
+        $return = formatMsg(0,422, 'Veuillez remplir tous les champs !');
+    }else{
+        $sql = "INSERT INTO users(name, firstname, mail, password, role, created_at, modified_at) VALUES(:name, :firstname, :email, :password, :role, :created_at, :modified_at)";
+        $stmt = $conn->prepare($sql);
+        $date = date('Y-m-d H:i:s');
+        $password = password_hash($data->password, PASSWORD_DEFAULT);
+        $stmt->bindParam(':name', $data->name);
+        $stmt->bindParam(':firstname', $data->firstname);
+        $stmt->bindParam(':email', $data->email);
+        $stmt->bindParam(':password', $password);
+        $stmt->bindParam(':role', $data->role);
+        $stmt->bindParam(':created_at', $date);
+        $stmt->bindParam(':modified_at', $date);
+        if($stmt->execute()) {
+            $return = ['success' => 1, 'message' => 'Création de l\'utilisateur ' . $data->firstname . ' ' . $data->name . ' réussie.'];
+        } else {
+            $return = formatMsg(0,422, 'Error');
+        }
     }
-    echo json_encode($response);
+    
+    echo json_encode($return);
+}
 
+function import_users($conn, $data){
+    if(empty($data)){
+        $return = formatMsg(0,422, 'Echec de l\'importation : Assurez-vous d\'utiliser le fichier .csv fourni et de le remplir correctement');
+    }else{
+        $count = 1;
+        $return = '';
+        foreach($data as $d){
+            if(empty($d->name) || empty($d->firstname) || empty($d->email) || empty($d->password) ||  empty($d->role)){
+                $return = formatMsg(0,422, 'Echec de l\'importation : Assuez-vous d\'utiliser le fichier .csv fourni et de le remplir correctement');
+            }
+            else{
+                echo json_encode('test2)');
+                die;
+                $sql = "INSERT INTO users(name, firstname, mail, password, role, created_at, modified_at) VALUES(:name, :firstname, :email, :password, :role, :created_at, :modified_at)";
+                $stmt = $conn->prepare($sql);
+                $date = date('Y-m-d H:i:s');
+                $password = password_hash($d->password, PASSWORD_DEFAULT);
+                $stmt->bindParam(':name', $d->name);
+                $stmt->bindParam(':firstname', $d->firstname);
+                $stmt->bindParam(':email', $d->email);
+                $stmt->bindParam(':password', $password );
+                $stmt->bindParam(':role', $d->role);
+                $stmt->bindParam(':created_at', $date);
+                $stmt->bindParam(':modified_at', $date);
+                if(!$stmt->execute()) {
+                    $return = formatMsg(0,422, 'Error ');
+                }else{
+                    $return = [
+                        'success' => 1,
+                        'message' => 'Importation de ' . $count . ' utilisateurs réussie.'
+                    ];
+                }
+                $count ++;
+            }
+        }
+    }
+    
+    echo json_encode($return);
 }

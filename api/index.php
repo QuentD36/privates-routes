@@ -7,7 +7,7 @@ require_once 'dbManager.php';
 require_once 'functions.php';
 require_once 'authMiddleware.php';
 require_once 'userController.php';
-define('URL', 'http://localhost/savage-dreams');
+define('URL', 'http://localhost:8888/savage-dreams');
 
 
 $db = new dbManager;
@@ -53,7 +53,7 @@ switch($method) {
                 break;
             case 'users':
                 $sql = "SELECT users.id, users.name as name, users.firstname, users.mail, roles.intitule as role FROM users, roles WHERE users.role = roles.id";
-                $stmt = $conn->prepare($sql);
+                $stmt = $conn->query($sql);
                 $stmt->execute();
                 $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 echo json_encode($users);
@@ -78,8 +78,13 @@ switch($method) {
                 login($conn, $data);
                 break;     
             case 'user':
-                if($action[4] == 'save'){
-                    save_user($conn, $data);
+                switch($action[4]){
+                    case 'save':
+                        save_user($conn, $data);
+                        break;
+                    case 'import':
+                        import_users($conn, $data);
+                        break;
                 }
                 break;
             default:

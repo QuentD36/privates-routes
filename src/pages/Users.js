@@ -13,14 +13,10 @@ import Badge from '@mui/material/Badge';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
-import Link from '@mui/material/Link';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import { mainListItems, secondaryListItems } from '../components/listItems';
-import Chart from '../components/Chart';
-import Deposits from '../components/Deposits';
-import Orders from '../components/Orders';
 import {useEffect, useState} from 'react';
 import axios from "axios";
 import Table from '@mui/material/Table';
@@ -29,10 +25,19 @@ import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Title from '../components/Title';
-import UserModal from '../components/UserModal';
+import AddUserModal from '../components/AddUserModal';
 import Config from '../config.json';
+import Checkbox from '@mui/material/Checkbox';
+import ImportUserModal from '../components/ImportUserModaj';
+import Snackbar from '@mui/material/Snackbar';
+import CloseIcon from '@mui/icons-material/Close';
+import MuiAlert from '@mui/material/Alert';
 
 const drawerWidth = 240;
+
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== 'open',
@@ -81,25 +86,44 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 const mdTheme = createTheme();
 
 function DashboardContent() {
-  const [open, setOpen] = React.useState(true);
+  const [open, setOpen] = React.useState(true)
   const toggleDrawer = () => {
     setOpen(!open);
   };
+  const [successMsg, setSuccessMsg] = useState('')
+  const [openSuccess, setOpenSuccess] = useState(false)
 
-  const [users, setUsers] = useState([]);
-  const [date, setDate] = useState(Date.now());
-  const [roles, setRoles] = useState([]);
+  const [users, setUsers] = useState([])
+  const [date, setDate] = useState(Date.now())
+  const [roles, setRoles] = useState([])
+  
+  const handleCloseSuccess = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
 
-  React.useEffect(() => {
-   
+    setOpenSuccess(false);
+  };
 
-  }, [])
-    
+  const action = (
+    <React.Fragment>
+      <IconButton
+        size="small"
+        aria-label="close"
+        color="inherit"
+        onClick={handleCloseSuccess}
+      >
+        <CloseIcon fontSize="small" />
+      </IconButton>
+    </React.Fragment>
+  );
 
     useEffect(() => {
         const fetchUsers = async () => {
             const usersFromApi = await axios.get(Config.BASE_URL + '/api/users');
-            setUsers(usersFromApi.data);
+            // console.log(usersFromApi.data)
+            setUsers(usersFromApi.data)
+
         };
 
         const loadRole = async () => {
@@ -107,10 +131,11 @@ function DashboardContent() {
       
           setRoles(rolesFromApi.data)
         }
-    
-        fetchUsers();
-        loadRole()
 
+        
+        
+        fetchUsers()
+        loadRole()
       }, [date]);
 
       // console.log(roles)
@@ -195,6 +220,7 @@ function DashboardContent() {
       <Table size="small">
         <TableHead>
           <TableRow>
+            <TableCell>Selectionner</TableCell>
             <TableCell>Nom</TableCell>
             <TableCell>Prénom</TableCell>
             <TableCell>Mail</TableCell>
@@ -204,6 +230,15 @@ function DashboardContent() {
         <TableBody>
         {users.map((user) => (
             <TableRow key={user.id}>
+              <TableCell>
+                <Checkbox
+                  edge="start"
+                  // checked={checked.indexOf(value) !== -1}
+                  // tabIndex={-1}
+                  disableRipple
+                  // inputProps={{ 'aria-labelledby': labelId }}
+                />
+                </TableCell>
               <TableCell>{user.name}</TableCell>
               <TableCell>{user.firstname}</TableCell>
               <TableCell>{user.mail}</TableCell>
@@ -217,8 +252,20 @@ function DashboardContent() {
             </Grid>
             
           </Container>
-          <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-          <UserModal roles={roles}/>
+          <Snackbar
+            open={openSuccess}
+            autoHideDuration={4000}
+            onClose={handleCloseSuccess}
+            action={action}
+          >
+            <Alert onClose={handleCloseSuccess} severity="success" sx={{ width: '100%' }}>
+              {successMsg}
+            </Alert>
+          </Snackbar>
+
+          <Container maxWidth="lg" sx={{ mt: 4, mb: 4, display: 'flex' }}>
+          <AddUserModal roles={roles} setDate={setDate} setSuccessMsg={setSuccessMsg} setOpenSuccess={setOpenSuccess}/>
+          <ImportUserModal roles={roles} setDate={setDate} setSuccessMsg={setSuccessMsg} setOpenSuccess={setOpenSuccess}/>
           </Container>
           
         </Box>

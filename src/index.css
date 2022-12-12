@@ -22,3 +22,11 @@ code {
   display: inline;
   margin-right: 15px;
 }
+
+.download-link{
+  text-decoration: underline;
+}
+
+.download-link:hover{
+  cursor: pointer;
+}
