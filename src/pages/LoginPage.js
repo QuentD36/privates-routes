@@ -21,7 +21,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import CircularProgress from '@mui/material/CircularProgress';
 import { redirect } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-
+import Config from "../config.json";
 
 function Copyright(props) {
   return (
@@ -63,8 +63,8 @@ export default function SignIn() {
 
     setTimeout(() => {
       setIsLoading(true);
-      axios.post('http://localhost:8888/savage-dreams/api/login', inputs).then( (response) => {
-        console.log(response.data)
+      axios.post(Config.BASE_URL + '/api/login', inputs).then( (response) => {
+        // console.log(response.data)
           if(response.data.success == 0){
             setError(response.data.message)
             setIsError(true)

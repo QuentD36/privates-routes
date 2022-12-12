@@ -29,7 +29,6 @@ class Auth extends JwtHandler
                     "success" => 1,
                     "message" => "Token ok",
                     "user" => $user,
-
                 ];
             }
                 
@@ -51,7 +50,7 @@ class Auth extends JwtHandler
     protected function fetchUser($user_id)
     {
         try {
-            $fetch_user_by_id = "SELECT `email` FROM `users` WHERE `id`=:id";
+            $fetch_user_by_id = "SELECT `mail` FROM `users` WHERE `id`=:id";
             $query_stmt = $this->db->prepare($fetch_user_by_id);
             $query_stmt->bindValue(':id', $user_id, PDO::PARAM_INT);
             $query_stmt->execute();

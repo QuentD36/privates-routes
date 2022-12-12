@@ -1,36 +1,29 @@
 import * as React from 'react';
 import Button from '@mui/material/Button';
-import Avatar from '@mui/material/Avatar';
-import List from '@mui/material/List';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
-import Checkbox from '@mui/material/Checkbox';
 import CircularProgress from '@mui/material/CircularProgress';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import ListItem from '@mui/material/ListItem';
-import ListItemAvatar from '@mui/material/ListItemAvatar';
-import ListItemText from '@mui/material/ListItemText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Dialog from '@mui/material/Dialog';
-import PersonIcon from '@mui/icons-material/Person';
 import AddIcon from '@mui/icons-material/Add';
-import Typography from '@mui/material/Typography';
-import { blue } from '@mui/material/colors'
 import { useState } from 'react';
-import axios from 'axios';
-
 import Fab from '@mui/material/Fab';
-
-const emails = ['username@gmail.com', 'user02@gmail.com'];
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
+import axios from 'axios';
+import Config from '../config.json';
 
 
 function SimpleDialog(props) {
-    const [isError, setIsError] = useState(false);
-    const [error, setError] = useState(false);
-    const [inputs, setInputs] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const [error, setError] = useState(false);
+  var [inputs, setInputs] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [role, setRole] = useState('');
 
-    var display = 'none'
+  var display = 'none'
   var loading = 'none'
   var show = "flex"
 
@@ -42,31 +35,40 @@ function SimpleDialog(props) {
     loading = "flex"
     show = "none"
   }
+
   const handleChange = (event) => {
     const name = event.target.name;
     const value = event.target.value;
     setInputs(values => ({...values, [name]: value}));
-}
+  }
 
-    const handleSubmit = (event) => {
-      event.preventDefault();
-      setIsLoading(true);
+  const handleRole = (e) => {
+    setRole(e.target.value)
     
-        setTimeout(() => {
-          setIsLoading(true);
-          axios.post('http://localhost:8888/savage-dreams/api/user/save', inputs).then( (response) => {
-            console.log(response.data)
-              if(response.data.success == 0){
-                setError(response.data.message)
-                setIsError(true)
-                setIsLoading(false);
-              }else{
-                localStorage.setItem('token', response.data.token)
-              }
-          })
-        }, 1000);
-        
-    }
+    setInputs(values => ({...values, [e.target.name]: e.target.value}))
+  }
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    setIsLoading(true);
+
+    
+      setTimeout(() => {
+        // setIsLoading(true);
+        axios.post(Config.BASE_URL + '/api/user/save', inputs).then( (response) => {
+          console.log(response.data)
+        //     // if(response.data.success == 0){
+        //     //   setError(response.data.message)
+        //     //   setIsError(true)
+        //     //   setIsLoading(false);
+        //     // }else{
+        //     //   localStorage.setItem('token', response.data.token)
+        //     // }
+        })
+      }, 1000);
+       
+  }
+
   const { onClose, selectedValue, open } = props;
 
   const handleClose = () => {
@@ -112,6 +114,24 @@ function SimpleDialog(props) {
               autoComplete="email"
               onChange={handleChange}
             />
+            <Box sx={{ minWidth: 120, mt: 2 }}>
+              <FormControl fullWidth >
+                <InputLabel id="role-select-label">Rôle</InputLabel>
+                <Select
+                  labelId="role-select-label"
+                  id="role"
+                  label="Rôle"
+                  name="role"
+                  onChange={handleRole}
+                  value={role}
+                >
+                  {props.roles.map((role) => (
+                  <MenuItem key={role.id} value={role.id}>{role.intitule}</MenuItem>
+
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
             <Button
               type="submit"
               fullWidth
@@ -132,7 +152,7 @@ function SimpleDialog(props) {
   );
 }
 
-export default function Modal() {
+export default function UserModal(props) {
   const [open, setOpen] = React.useState(false);
 
   const handleClickOpen = () => {
@@ -147,10 +167,11 @@ export default function Modal() {
     <div>
       <Fab color="primary" aria-label="add" onClick={handleClickOpen}>
             <AddIcon />
-        </Fab>
+      </Fab>
       <SimpleDialog
         open={open}
         onClose={handleClose}
+        roles={props.roles}
       />
     </div>
   );

@@ -22,8 +22,8 @@ function login($conn, $data){
         }else{
             try{
                 
-                $find_user_by_email = "SELECT * FROM `users` WHERE `email`=:email";
-                $query_stmt = $db->prepare($find_user_by_email);
+                $find_user_by_email = "SELECT * FROM `users` WHERE `mail`=:email";
+                $query_stmt = $conn->prepare($find_user_by_email);
                 $query_stmt->bindValue(':email', $email,PDO::PARAM_STR);
                 $query_stmt->execute();
 
@@ -36,7 +36,7 @@ function login($conn, $data){
                     if($check_password){
                         $jwt = new JwtHandler();
                         $token = $jwt->jwtEncodeData(
-                            'http://localhost/dashboard/server/jwtHandler.php',
+                            URL . '/jwtHandler.php',
                             array("user_id"=> $row['id'])
                         );
                         
@@ -70,5 +70,23 @@ function login($conn, $data){
 }
 
 function save_user($conn, $data){
+    $user = json_decode( file_get_contents('php://input') );
+    $sql = "INSERT INTO users(name, firstname, mail, password, role, created_at, modified_at) VALUES(:name, :firstname, :email, :password, :role, :created_at, :modified_at)";
+    $stmt = $conn->prepare($sql);
+    $data = date('Y-m-d H:i:s');
+    $stmt->bindParam(':name', $user->name);
+    $stmt->bindParam(':firstname', $user->firstname);
+    $stmt->bindParam(':email', $user->email);
+    $stmt->bindParam(':password', $user->name);
+    $stmt->bindParam(':role', $user->role);
+    $stmt->bindParam(':created_at', $date);
+    $stmt->bindParam(':modified_at', $date);
     
+    if($stmt->execute()) {
+        $response = ['status' => 1, 'message' => 'Success'];
+    } else {
+        $response = formatMsg(0,422, 'Error');
+    }
+    echo json_encode($response);
+
 }

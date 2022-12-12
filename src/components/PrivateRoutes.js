@@ -1,30 +1,27 @@
-
+import React, {useState, useEffect} from 'react';
 import {Outlet, Navigate} from 'react-router-dom';
 import axios from "axios";
-import { useState } from 'react';
-
-async function check(){
-    var test = false
-    let token = localStorage.getItem('token')
-
-    await axios.post('http://localhost:8888/savage-dreams/api/checkToken', {
-        data: token
-    },{
-        headers:{
-            'Authorization': `Bearer ${token}` 
-        }
-    }).then((response) => {
-        test = true
-    })
-    return test
-}
+import Config from "../config.json";
 
 const PrivateRoutes = () => {
-    
-    var data = check()
-    console.log(data)
-    
-    return data ?   <Outlet /> : <Navigate to="/" />;
+    const [tokenValid, setTokenValid] = useState();
+
+    useEffect(() => {
+        const checkToken = async () => {
+            let token = localStorage.getItem('token')
+            var response = await axios.get(Config.BASE_URL + '/api/checkToken', {
+                headers:{
+                    'Authorization': `Bearer ${token}` 
+                }
+            })
+            // console.log(response)
+            setTokenValid(response.data.success);
+        }
+        checkToken();
+    }, [])
+
+    console.log(tokenValid)
+    return tokenValid ?  <Navigate to="/" /> : <Outlet />;
 };
 
 export default PrivateRoutes;

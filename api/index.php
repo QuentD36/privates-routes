@@ -7,6 +7,7 @@ require_once 'dbManager.php';
 require_once 'functions.php';
 require_once 'authMiddleware.php';
 require_once 'userController.php';
+define('URL', 'http://localhost/savage-dreams');
 
 
 $db = new dbManager;
@@ -17,13 +18,48 @@ $method = $_SERVER['REQUEST_METHOD'];
 $action = explode('/', $_SERVER['REQUEST_URI']);
 $data = json_decode(file_get_contents('php://input'));
 
-// $test = json_encode($action);
+// $test = json_encode($method);
 
 // echo $test;
 // die;
 switch($method) {
     case "GET":
-        $sql = "SELECT * FROM users";
+        switch($action[3]){
+            case 'checkToken' :
+                $allHeaders = getallheaders();                
+                $auth = new Auth($conn, $allHeaders);
+                $auth = $auth->isValid();
+                if ($auth["success"]) {
+                    http_response_code(200);
+                    echo json_encode([
+                        'success' => true,
+                    ]);
+                } else {
+                    http_response_code(401);
+                    echo json_encode([
+                        'error' => 'Invalid token',
+                    ]);
+                }
+                break;
+            case 'user' :
+                
+                break;
+            case 'roles':
+                $sql = "SELECT * FROM roles";
+                $stmt = $conn->prepare($sql);
+                $stmt->execute();
+                $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                echo json_encode($users);
+                break;
+            case 'users':
+                $sql = "SELECT users.id, users.name as name, users.firstname, users.mail, roles.intitule as role FROM users, roles WHERE users.role = roles.id";
+                $stmt = $conn->prepare($sql);
+                $stmt->execute();
+                $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                echo json_encode($users);
+                break;
+        }
+       
         if(isset($action[4]) && is_numeric($action[4])) { // api/user/:id
             $sql .= " WHERE id = :id";
             $stmt = $conn->prepare($sql);
@@ -31,24 +67,16 @@ switch($method) {
             $stmt->execute();
             $users = $stmt->fetch(PDO::FETCH_ASSOC);
         } else {                                          // api/users
-            $stmt = $conn->prepare($sql);
-            $stmt->execute();
-            $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+           
         }
-
-        echo json_encode($users);
+        
+        
         break;
     case "POST": 
         switch($action[3]){
             case 'login':
                 login($conn, $data);
-                break;
-            case 'checkToken':
-                $allHeaders = getallheaders();
-                $auth = new Auth($conn, $allHeaders);
-                $auth = $auth->isValid();
-                echo json_encode($auth);
-                break;
+                break;     
             case 'user':
                 if($action[4] == 'save'){
                     save_user($conn, $data);

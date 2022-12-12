@@ -29,7 +29,8 @@ import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Title from '../components/Title';
-import Modal from '../components/Modal';
+import UserModal from '../components/UserModal';
+import Config from '../config.json';
 
 const drawerWidth = 240;
 
@@ -86,19 +87,33 @@ function DashboardContent() {
   };
 
   const [users, setUsers] = useState([]);
-    const [date, setDate] = useState(Date.now());
+  const [date, setDate] = useState(Date.now());
+  const [roles, setRoles] = useState([]);
+
+  React.useEffect(() => {
+   
+
+  }, [])
     
 
     useEffect(() => {
         const fetchUsers = async () => {
-            const usersFromApi = await axios.get('http://localhost:8888/savage-dreams/api/users');
+            const usersFromApi = await axios.get(Config.BASE_URL + '/api/users');
             setUsers(usersFromApi.data);
         };
+
+        const loadRole = async () => {
+          const rolesFromApi = await axios.get(Config.BASE_URL + '/api/roles')
+      
+          setRoles(rolesFromApi.data)
+        }
     
         fetchUsers();
+        loadRole()
+
       }, [date]);
 
-
+      // console.log(roles)
   return (
     <ThemeProvider theme={mdTheme}>
       <Box sx={{ display: 'flex' }}>
@@ -189,24 +204,21 @@ function DashboardContent() {
         <TableBody>
         {users.map((user) => (
             <TableRow key={user.id}>
-              <TableCell>{user.nom}</TableCell>
-              <TableCell>{user.prenom}</TableCell>
-              <TableCell>{user.email}</TableCell>
+              <TableCell>{user.name}</TableCell>
+              <TableCell>{user.firstname}</TableCell>
+              <TableCell>{user.mail}</TableCell>
               <TableCell>{user.role}</TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
-      <Link color="primary" href="#" sx={{ mt: 3 }} width="fit-content">
-        See more orders
-      </Link>
                 </Paper>
               </Grid>
             </Grid>
             
           </Container>
           <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-          <Modal/>
+          <UserModal roles={roles}/>
           </Container>
           
         </Box>
