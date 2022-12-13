@@ -21,7 +21,7 @@ const PrivateRoutes = () => {
     }, [])
 
     console.log(tokenValid)
-    return tokenValid ?  <Navigate to="/" /> : <Outlet />;
+    return tokenValid ?  <Outlet /> : <Navigate to="/" />;
 };
 
 export default PrivateRoutes;
